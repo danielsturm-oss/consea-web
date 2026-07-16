@@ -395,6 +395,14 @@
             color: var(--navy-primary);
             font-weight: 600;
         }
+        .form-status.is-error { color: #c0392b; }
+        .hp-field {
+            position: absolute;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
 
         @media (max-width: 768px) {
             .form-grid { grid-template-columns: 1fr; }
@@ -682,7 +690,22 @@
         <div class="contact-card">
             <h3 style="font-family: var(--font-heading); color: var(--navy-primary); margin-bottom: 10px;">Request a Confidential Introduction</h3>
             <p class="contact-subcopy">This information is used solely to respond to your inquiry. We do not share or distribute contact details.</p>
-            <form id="contactForm" novalidate>
+            <!--
+                MACK TODO (Daniel, manual step): this form posts to Formspree, a
+                form-to-email backend for static sites (no server needed).
+                1. Sign up (free) at https://formspree.io using info@consea.tech
+                2. Create a new form there -> it gives you a form ID / endpoint
+                   like https://formspree.io/f/abcdwxyz
+                3. Formspree emails info@consea.tech a confirmation link the
+                   first time -> click it to activate the form.
+                4. Replace REPLACE_WITH_FORMSPREE_FORM_ID below (in the form's
+                   action attribute AND in the FORMSPREE_ENDPOINT constant in
+                   the script at the bottom of this file) with your real form ID.
+                Nothing here is a secret you need to hide in an env var -
+                Formspree's form endpoint is designed to be public in client-side
+                HTML; spam is filtered server-side by Formspree + our honeypot field.
+            -->
+            <form id="contactForm" novalidate action="https://formspree.io/f/REPLACE_WITH_FORMSPREE_FORM_ID" method="POST">
                 <div class="form-grid">
                     <div class="form-field">
                         <label for="fullName">Full name</label>
@@ -710,8 +733,15 @@
                     <textarea id="message" name="message" placeholder="Briefly describe your interest or situation (optional)" rows="5" maxlength="500"></textarea>
                     <div class="field-msg" data-for="message"></div>
                 </div>
+                <input type="hidden" name="_subject" value="Confidential introduction request - consea.tech">
+                <!-- Honeypot: real visitors never see or fill this field; bots that
+                     auto-fill every input do, and Formspree silently drops those. -->
+                <div class="hp-field" aria-hidden="true">
+                    <label for="_gotcha">Leave this field empty</label>
+                    <input id="_gotcha" name="_gotcha" type="text" tabindex="-1" autocomplete="off">
+                </div>
                 <div class="consent-line">By submitting this form, you confirm that the information provided is accurate and that you consent to being contacted by ConSea Technology regarding your inquiry.</div>
-                <button type="submit" class="btn-primary" style="border: none; cursor: pointer;">Request an Introduction</button>
+                <button type="submit" class="btn-primary" style="border: none; cursor: pointer;" id="contactSubmitBtn">Request an Introduction</button>
                 <div class="post-submit">We typically respond within one business day. All inquiries are handled confidentially. If you prefer, email us directly at <a href="mailto:info@consea.tech">info@consea.tech</a>.</div>
                 <div id="formStatus" class="form-status" aria-live="polite"></div>
             </form>
@@ -815,47 +845,79 @@
                 return ok;
             }
 
-            form.addEventListener('submit', function(e) {
+            const FORMSPREE_ENDPOINT = 'https://formspree.io/f/REPLACE_WITH_FORMSPREE_FORM_ID';
+            const submitBtn = document.getElementById('contactSubmitBtn');
+
+            function setStatus(message, isError) {
+                statusEl.textContent = message;
+                statusEl.classList.toggle('is-error', !!isError);
+            }
+
+            function sleep(ms) {
+                return new Promise(function(resolve) { setTimeout(resolve, ms); });
+            }
+
+            // Small bounded retry for transient network failures (not for 4xx
+            // validation errors from Formspree, which won't succeed on retry).
+            async function submitWithRetry(payload, attempt) {
+                attempt = attempt || 1;
+                const maxAttempts = 3;
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        headers: { 'Accept': 'application/json' },
+                        body: payload
+                    });
+                    if (response.ok) return { ok: true };
+                    if (response.status >= 500 && attempt < maxAttempts) {
+                        await sleep(attempt * 800);
+                        return submitWithRetry(payload, attempt + 1);
+                    }
+                    let detail = '';
+                    try {
+                        const data = await response.json();
+                        if (data && data.errors) {
+                            detail = data.errors.map(function(er) { return er.message; }).join(' ');
+                        }
+                    } catch (parseErr) { /* ignore non-JSON error body */ }
+                    return { ok: false, detail: detail };
+                } catch (networkErr) {
+                    if (attempt < maxAttempts) {
+                        await sleep(attempt * 800);
+                        return submitWithRetry(payload, attempt + 1);
+                    }
+                    return { ok: false, detail: 'network' };
+                }
+            }
+
+            form.addEventListener('submit', async function(e) {
                 e.preventDefault();
 
                 if (!validate()) {
-                    statusEl.textContent = 'Please review the highlighted fields.';
+                    setStatus('Please review the highlighted fields.', true);
                     return;
                 }
 
-                const fullName = document.getElementById('fullName').value.trim();
-                const email = document.getElementById('email').value.trim();
-                const org = document.getElementById('org').value.trim();
-                const role = document.getElementById('role').value.trim();
-                const message = document.getElementById('message').value.trim();
+                if (FORMSPREE_ENDPOINT.indexOf('REPLACE_WITH_FORMSPREE_FORM_ID') !== -1) {
+                    setStatus('Form is not yet configured to send email - please contact us directly at info@consea.tech.', true);
+                    return;
+                }
 
-                const to = 'info@consea.tech';
-                const subject = 'Confidential introduction request';
-                const bodyLines = [
-                    'Full name: ' + fullName,
-                    'Email: ' + email,
-                    'Organization: ' + org,
-                    'Role: ' + role,
-                    '',
-                    'Message:',
-                    message || '(none)'
-                ];
-                const body = bodyLines.join('\n');
+                submitBtn.disabled = true;
+                setStatus('Sending your request...', false);
 
-                statusEl.textContent = 'Opening your email client to send your request.';
-                window.location.href = 'mailto:' + encodeURIComponent(to) + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+                const payload = new FormData(form);
+                const result = await submitWithRetry(payload);
 
-                form.reset();
+                submitBtn.disabled = false;
 
-                setFieldState('fullName', '');
-                setFieldState('email', '');
-                setFieldState('org', '');
-                setFieldState('role', '');
-                setFieldState('message', '');
-
-                setTimeout(function() {
-                    statusEl.textContent = 'Thank you for your inquiry. A member of our team will contact you shortly.';
-                }, 600);
+                if (result.ok) {
+                    form.reset();
+                    ['fullName', 'email', 'org', 'role', 'message'].forEach(function(id) { setFieldState(id, ''); });
+                    setStatus('Thank you for your inquiry. A member of our team will contact you shortly.', false);
+                } else {
+                    setStatus('We could not send your request (' + (result.detail || 'please try again') + '). You can also email us directly at info@consea.tech.', true);
+                }
             });
 
             ['fullName','email','org','role','message'].forEach(function(id) {
