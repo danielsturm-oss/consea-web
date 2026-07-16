@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ConSea Technology provides structured capital solutions and operational expertise for Southeast Asia's consumer lending platforms, and curated private credit access for institutional investors.">
     <title>ConSea Technology | Structured Capital Solutions</title>
     <style>
         /* --- WORLD CLASS DESIGN SYSTEM (McKinsey Style) --- */
@@ -12,6 +13,11 @@
             --navy-light: #1F2D40;
             --gold-accent: #C5A059;
             --gold-light: #E5C585;
+            /* AA-safe gold for text on light backgrounds (same hue family as
+               --gold-accent, darkened to meet 4.5:1 on white/grey-bg — flagged
+               to Daniel as a proposed brand-skill extension; --gold-accent
+               itself stays untouched for gold-on-navy uses, which already pass). */
+            --gold-accent-aa: #8A6D3B;
             --white: #FFFFFF;
             --grey-bg: #F8F9FA;
             --text-main: #333333;
@@ -67,6 +73,137 @@
             transition: color 0.3s ease;
         }
         nav a:hover { color: var(--gold-accent); }
+
+        /* --- KEYBOARD FOCUS (a11y baseline) --- */
+        a:focus-visible,
+        button:focus-visible,
+        input:focus-visible,
+        textarea:focus-visible {
+            outline: 2px solid var(--gold-accent);
+            outline-offset: 2px;
+        }
+
+        /* --- HEADER ACTIONS (persistent CTA + mobile menu toggle) --- */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .btn-header-cta {
+            white-space: nowrap;
+        }
+
+        /* Two label lengths for the same persistent header CTA: full label
+           on desktop/tablet, short label only once the header narrows on
+           mobile (Ridley copy, 2026-07-16). Only one is shown at a time.
+           Uses the element+class selector (not just .btn-header-cta-short)
+           so this reliably beats the page's existing .btn-primary rule
+           further down the sheet regardless of source order. */
+        a.btn-header-cta-short { display: none; }
+
+        .menu-toggle {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            padding: 0;
+            background: none;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .menu-toggle-icon,
+        .menu-toggle-icon::before,
+        .menu-toggle-icon::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            width: 22px;
+            height: 2px;
+            background: var(--navy-primary);
+            transform: translateX(-50%);
+            transition: transform 0.25s ease, opacity 0.25s ease, top 0.25s ease;
+        }
+        .menu-toggle-icon { top: 50%; margin-top: -1px; }
+        .menu-toggle-icon::before { top: -7px; }
+        .menu-toggle-icon::after { top: 7px; }
+
+        .menu-toggle[aria-expanded="true"] .menu-toggle-icon { background: transparent; }
+        .menu-toggle[aria-expanded="true"] .menu-toggle-icon::before { top: 0; transform: translateX(-50%) rotate(45deg); }
+        .menu-toggle[aria-expanded="true"] .menu-toggle-icon::after { top: 0; transform: translateX(-50%) rotate(-45deg); }
+
+        /* --- MOBILE NAV PANEL --- */
+        .mobile-nav {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .mobile-nav.open { visibility: visible; pointer-events: auto; }
+
+        .mobile-nav-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(11, 22, 35, 0.6);
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        .mobile-nav.open .mobile-nav-backdrop { opacity: 1; }
+
+        .mobile-nav-panel {
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 100%;
+            width: min(320px, 85vw);
+            background: var(--navy-primary);
+            padding: 28px 28px 40px;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.25);
+            overflow-y: auto;
+        }
+        .mobile-nav.open .mobile-nav-panel { transform: translateX(0); }
+
+        .mobile-nav-close {
+            align-self: flex-end;
+            width: 40px;
+            height: 40px;
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.8rem;
+            line-height: 1;
+            cursor: pointer;
+            margin-bottom: 12px;
+        }
+
+        .mobile-nav-panel ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            margin-bottom: 28px;
+        }
+        .mobile-nav-panel a {
+            display: block;
+            color: var(--white);
+            text-decoration: none;
+            font-size: 1.1rem;
+            padding: 14px 4px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .mobile-nav-panel a:hover,
+        .mobile-nav-panel a:focus-visible { color: var(--gold-accent); }
+
+        .mobile-nav-cta { text-align: center; }
 
         /* --- HERO SECTION --- */
         .hero {
@@ -282,7 +419,7 @@
         }
 
         .team-name { font-family: var(--font-heading); font-size: 1.3rem; color: var(--navy-primary); margin-bottom: 5px; }
-        .team-role { font-size: 0.9rem; color: var(--gold-accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; }
+        .team-role { font-size: 0.9rem; color: var(--gold-accent-aa); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; }
 
         .linkedin-link {
             display: inline-flex; align-items: center; gap: 8px;
@@ -408,7 +545,43 @@
             .split-section { flex-direction: column; }
             .split-image-container { width: 100%; height: 300px; }
             .footer-grid { grid-template-columns: 1fr; }
-            nav { display: none; }
+
+            /* Finding 3 fix: the desktop inline nav still disappears at this
+               breakpoint, but it is replaced by the hamburger + off-canvas
+               mobile-nav panel below, and the header CTA stays visible. */
+            header nav#primaryNav { display: none; }
+            .menu-toggle { display: flex; }
+
+            header { padding: 18px 5%; gap: 12px; }
+            .header-actions { gap: 10px; }
+
+            /* Narrow header: swap to the short CTA label (Ridley copy) */
+            a.btn-header-cta { display: none; }
+            a.btn-header-cta-short {
+                display: inline-block;
+                font-size: 0.68rem;
+                padding: 10px 14px;
+                letter-spacing: 0.5px;
+            }
+        }
+
+        /* On real phone widths (<=480px) logo + short CTA + hamburger no
+           longer fit on one row without illegible truncation. Wrap the
+           header to two rows instead of shrinking text below legibility:
+           row 1 = logo, row 2 = full-width CTA + hamburger. The hamburger
+           stays reliably reachable at every phone width (verified in
+           browser at 320/360/375/414/430px — see visual QA note). */
+        @media (max-width: 480px) {
+            header { flex-wrap: wrap; row-gap: 10px; }
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            a.btn-header-cta-short {
+                font-size: 0.78rem;
+                padding: 11px 18px;
+                letter-spacing: 0.6px;
+            }
         }
     
 .solutions-intro-grid {
@@ -481,7 +654,7 @@
 
     <header>
         <a href="#" class="logo">ConSea Technology</a>
-        <nav>
+        <nav id="primaryNav" aria-label="Primary">
             <ul>
                 <li><a href="#solutions">Solutions</a></li>
                 <li><a href="#investment">Investment</a></li>
@@ -490,7 +663,29 @@
                 <li><a href="#contact">Contact</a></li>
             </ul>
         </nav>
+        <div class="header-actions">
+            <a href="#contact" class="btn-primary btn-header-cta">Request the Investment Overview</a>
+            <a href="#contact" class="btn-primary btn-header-cta-short">Request Overview</a>
+            <button type="button" class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="mobileNav" aria-label="Open menu">
+                <span class="menu-toggle-icon" aria-hidden="true"></span>
+            </button>
+        </div>
     </header>
+
+    <div class="mobile-nav" id="mobileNav" aria-hidden="true">
+        <div class="mobile-nav-backdrop" id="mobileNavBackdrop"></div>
+        <div class="mobile-nav-panel" role="dialog" aria-modal="true" aria-label="Mobile navigation">
+            <button type="button" class="mobile-nav-close" id="mobileNavClose" aria-label="Close menu">&times;</button>
+            <ul>
+                <li><a href="#solutions">Solutions</a></li>
+                <li><a href="#investment">Investment</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#team">Leadership</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <a href="#contact" class="btn-primary mobile-nav-cta">Request the Investment Overview</a>
+        </div>
+    </div>
 
     <section class="hero">
         <div class="hero-content">
@@ -508,7 +703,7 @@
         <div class="stats-bar">
             <div class="stat-item">
                 <div class="stat-icon">
-                    <img src="icon-graph.jpg" alt="Graph Icon">
+                    <img src="icon-graph.jpg" alt="">
                 </div>
                 <div class="stat-text">
                     <span class="stat-value">10 % p.a.</span>
@@ -518,7 +713,7 @@
 
             <div class="stat-item">
                 <div class="stat-icon">
-                    <img src="icon-globe.jpg" alt="Globe Icon">
+                    <img src="icon-globe.jpg" alt="">
                 </div>
                 <div class="stat-text">
                     <span class="stat-value">SEA Region</span>
@@ -528,7 +723,7 @@
 
             <div class="stat-item">
                 <div class="stat-icon">
-                    <img src="icon-shield.jpg" alt="Shield Icon">
+                    <img src="icon-shield.jpg" alt="">
                 </div>
                 <div class="stat-text">
                     <span class="stat-value">First Loss Prevention</span>
@@ -752,6 +947,85 @@
 
 
 
+
+    <script>
+        /* Mobile navigation — presentational only (open/close a menu panel).
+           Does not touch the contact-form script below (owned separately). */
+        (function() {
+            const toggle = document.getElementById('menuToggle');
+            const nav = document.getElementById('mobileNav');
+            const closeBtn = document.getElementById('mobileNavClose');
+            const backdrop = document.getElementById('mobileNavBackdrop');
+            const panel = nav ? nav.querySelector('.mobile-nav-panel') : null;
+            if (!toggle || !nav || !panel || !closeBtn || !backdrop) return;
+
+            let lastFocused = null;
+
+            function getFocusable() {
+                return Array.prototype.slice.call(
+                    panel.querySelectorAll('a[href], button:not([disabled])')
+                );
+            }
+
+            function openMenu() {
+                lastFocused = document.activeElement;
+                nav.classList.add('open');
+                nav.setAttribute('aria-hidden', 'false');
+                toggle.setAttribute('aria-expanded', 'true');
+                toggle.setAttribute('aria-label', 'Close menu');
+                document.body.style.overflow = 'hidden';
+                const focusable = getFocusable();
+                if (focusable.length) focusable[0].focus();
+                document.addEventListener('keydown', onKeydown, true);
+            }
+
+            function closeMenu() {
+                nav.classList.remove('open');
+                nav.setAttribute('aria-hidden', 'true');
+                toggle.setAttribute('aria-expanded', 'false');
+                toggle.setAttribute('aria-label', 'Open menu');
+                document.body.style.overflow = '';
+                document.removeEventListener('keydown', onKeydown, true);
+                if (lastFocused && typeof lastFocused.focus === 'function') {
+                    lastFocused.focus();
+                } else {
+                    toggle.focus();
+                }
+            }
+
+            function onKeydown(e) {
+                if (e.key === 'Escape' || e.key === 'Esc') {
+                    e.preventDefault();
+                    closeMenu();
+                    return;
+                }
+                if (e.key === 'Tab') {
+                    const focusable = getFocusable();
+                    if (!focusable.length) return;
+                    const first = focusable[0];
+                    const last = focusable[focusable.length - 1];
+                    if (e.shiftKey && document.activeElement === first) {
+                        e.preventDefault();
+                        last.focus();
+                    } else if (!e.shiftKey && document.activeElement === last) {
+                        e.preventDefault();
+                        first.focus();
+                    }
+                }
+            }
+
+            toggle.addEventListener('click', function() {
+                if (nav.classList.contains('open')) { closeMenu(); } else { openMenu(); }
+            });
+
+            closeBtn.addEventListener('click', closeMenu);
+            backdrop.addEventListener('click', closeMenu);
+
+            panel.querySelectorAll('a[href^="#"]').forEach(function(link) {
+                link.addEventListener('click', closeMenu);
+            });
+        })();
+    </script>
 
     <script>
         (function() {
