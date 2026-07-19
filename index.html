@@ -54,12 +54,11 @@
         }
 
         .logo {
-            font-family: var(--font-heading);
-            font-size: 1.5rem;
-            color: var(--navy-primary);
-            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
             text-decoration: none;
         }
+        .logo .logo-mark { height: 40px; width: auto; display: block; }
 
         nav ul { display: flex; gap: 40px; list-style: none; }
         nav a {
@@ -70,8 +69,6 @@
             transition: color 0.3s ease;
         }
         nav a:hover { color: var(--gold-accent-dark); } /* on the white(0.98) fixed header — AA-safe gold */
-        .logo .brand-accent { color: var(--gold-accent-dark); } /* logo "Sea" accent on the white header — AA-safe dark gold */
-        .footer-brand h4 .brand-accent { color: var(--gold-accent); } /* logo "Sea" accent on the navy footer — bright gold (~7:1 on navy) */
 
         /* --- HERO SECTION --- */
         .hero {
@@ -299,7 +296,8 @@
         /* --- FOOTER --- */
         footer { background-color: var(--navy-deep); color: var(--white); padding: 80px 5% 40px; }
         .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 60px; margin-bottom: 60px; }
-        .footer-brand h4 { font-family: var(--font-heading); font-size: 1.8rem; margin-bottom: 20px; }
+        .footer-brand h4 { margin-bottom: 20px; }
+        .footer-brand h4 .logo-mark { height: 46px; width: auto; display: block; }
         .footer-brand p { color: rgba(255,255,255,0.5); max-width: 300px; }
         .footer-col h5 { color: var(--gold-accent); margin-bottom: 20px; font-size: 0.9rem; text-transform: uppercase; }
         .footer-col a { display: block; color: rgba(255,255,255,0.7); text-decoration: none; margin-bottom: 12px; }
@@ -485,7 +483,7 @@
 <body>
 
     <header>
-        <a href="#" class="logo">Con<span class="brand-accent">Sea</span> Technology</a>
+        <a href="#" class="logo"><img src="consea-lockup-v1-sea-gold-full.svg" alt="ConSea Technology" width="480" height="160" class="logo-mark"></a>
         <nav>
             <ul>
                 <li><a href="#solutions">Solutions</a></li>
@@ -728,7 +726,7 @@
     <footer>
         <div class="footer-grid" style="grid-template-columns: 3fr 1.2fr; align-items: start;">
             <div class="footer-brand">
-                <h4>Con<span class="brand-accent">Sea</span> Technology</h4>
+                <h4><img src="consea-lockup-v1-sea-gold-white.svg" alt="ConSea Technology" width="480" height="160" class="logo-mark"></h4>
                 <p style="margin-top:14px; font-size:0.9rem; color: rgba(255,255,255,0.6); line-height:1.6;">
                     ConSea Technology Pte. Ltd.<br>
                     Registration Number: 201919253G<br>
