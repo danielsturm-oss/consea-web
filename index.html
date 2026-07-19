@@ -68,6 +68,8 @@
             transition: color 0.3s ease;
         }
         nav a:hover { color: var(--gold-accent-dark); } /* on the white(0.98) fixed header — AA-safe gold */
+        .logo .brand-accent { color: var(--gold-accent-dark); } /* logo "Sea" accent on the white header — AA-safe dark gold */
+        .footer-brand h4 .brand-accent { color: var(--gold-accent); } /* logo "Sea" accent on the navy footer — bright gold (~7:1 on navy) */
 
         /* --- HERO SECTION --- */
         .hero {
@@ -481,7 +483,7 @@
 <body>
 
     <header>
-        <a href="#" class="logo">ConSea Technology</a>
+        <a href="#" class="logo">Con<span class="brand-accent">Sea</span> Technology</a>
         <nav>
             <ul>
                 <li><a href="#solutions">Solutions</a></li>
@@ -724,7 +726,7 @@
     <footer>
         <div class="footer-grid" style="grid-template-columns: 3fr 1.2fr; align-items: start;">
             <div class="footer-brand">
-                <h4>ConSea Technology</h4>
+                <h4>Con<span class="brand-accent">Sea</span> Technology</h4>
                 <p style="margin-top:14px; font-size:0.9rem; color: rgba(255,255,255,0.6); line-height:1.6;">
                     ConSea Technology Pte. Ltd.<br>
                     Registration Number: 201919253G<br>
