@@ -11,6 +11,7 @@
             --navy-primary: #0F1C2E;
             --navy-light: #1F2D40;
             --gold-accent: #C5A059;
+            --gold-accent-dark: #9C6B2E; /* AA-safe gold for text on white — #C5A059 on white is 2.46:1 (fails AA); this is 4.61:1. Note: on solid grey-bg #F8F9FA it drops to 4.37:1, so keep gold text on white surfaces. */
             --gold-light: #E5C585;
             --white: #FFFFFF;
             --grey-bg: #F8F9FA;
@@ -66,7 +67,7 @@
             font-weight: 500;
             transition: color 0.3s ease;
         }
-        nav a:hover { color: var(--gold-accent); }
+        nav a:hover { color: var(--gold-accent-dark); } /* on the white(0.98) fixed header — AA-safe gold */
 
         /* --- HERO SECTION --- */
         .hero {
@@ -282,7 +283,7 @@
         }
 
         .team-name { font-family: var(--font-heading); font-size: 1.3rem; color: var(--navy-primary); margin-bottom: 5px; }
-        .team-role { font-size: 0.9rem; color: var(--gold-accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; }
+        .team-role { font-size: 0.9rem; color: var(--gold-accent-dark); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; } /* on white card — AA-safe gold (was --gold-accent, 2.46:1) */
 
         .linkedin-link {
             display: inline-flex; align-items: center; gap: 8px;
